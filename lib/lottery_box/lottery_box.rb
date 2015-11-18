@@ -29,11 +29,10 @@ module LotteryBox
   end
 
   class Base
-    attr_accessor :box, :table, :rate_key
+    attr_accessor :box, :table
 
-    def initialize(box, rate_key: nil, strategy: nil)
+    def initialize(box, strategy: nil)
       @box = box
-      @rate_key = rate_key || :rate
       @strategy = strategy || LotteryBox.config.default_strategy.call
       @table = table_build
     end
@@ -46,12 +45,11 @@ module LotteryBox
     end
 
     def table_build
-      @rate_key or raise
       assert_robj_exist
-      group = @box.group_by{|e|!!e[@rate_key]}
+      group = @box.group_by { |e| !!e[:rate] }
       group0 = group[false] || [] # はずれ
       group1 = group[true] || []  # あたり
-      total = group1.collect{|e|e[@rate_key]}.reduce(0, :+)
+      total = group1.collect{|e|e[:rate]}.reduce(0, :+)
       assert_total(total)
       other_rate = 0
       if group0.size > 0
@@ -60,7 +58,7 @@ module LotteryBox
       last_rate = 0.0r
       table = []
       (group1 + group0).each do |e|
-        rate = (e[@rate_key] || other_rate).to_r
+        rate = (e[:rate] || other_rate).to_r
         range = last_rate ... (last_rate + rate)
         table << {:range => range, :rate => rate, :robj => e[:robj]}
         last_rate += rate
