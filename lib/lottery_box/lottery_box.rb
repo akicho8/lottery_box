@@ -9,14 +9,15 @@
 # 使い方
 #
 #   lottery_box = [
-#     {:robj => "S", :rate => 0.01},
-#     {:robj => "A", :rate => 0.1},
-#     {:robj => "B"},
+#     {robj: "S", rate: 0.01},
+#     {robj: "A", rate: 0.1},
+#     {robj: "B"},
 #   ]
 #   LotteryBox.pick(lottery_box)    # => "B"
 #
 
 require "active_support/core_ext/class/attribute_accessors"
+require "active_support/core_ext/hash/keys"
 require "active_support/configurable"
 require "bigdecimal"
 
@@ -45,39 +46,41 @@ module LotteryBox
     end
 
     def table_build
-      assert_robj_exist
+      @box.each { |e| e.assert_valid_keys(:rate, :robj) }
       group = @box.group_by { |e| !!e[:rate] }
-      group0 = group[false] || [] # はずれ
-      group1 = group[true] || []  # あたり
-      total = group1.collect{|e|e[:rate]}.reduce(0, :+)
+      assert_object_exist
+      group = @box.group_by { |e| !!e[:rate] }
+      false_group = group[false] || []
+      true_group = group[true] || []
+      total = true_group.collect { |e| e[:rate] }.reduce(0, :+)
       assert_total(total)
       other_rate = 0
-      if group0.size > 0
-        other_rate = (1.0r - total.to_r) / group0.size.to_r
+      if false_group.size > 0
+        other_rate = (1.0r - total.to_r) / false_group.size.to_r
       end
       last_rate = 0.0r
       table = []
-      (group1 + group0).each do |e|
+      (true_group + false_group).each do |e|
         rate = (e[:rate] || other_rate).to_r
         range = last_rate ... (last_rate + rate)
-        table << {:range => range, :rate => rate, :robj => e[:robj]}
+        table << {range: range, rate: rate, robj: e[:robj]}
         last_rate += rate
       end
       # BigDecimal で計算して最後に to_f で戻せば 0.9999999999999999999999999999 や 1.000000000000000000000001 が 1.0 になる
       if last_rate >= (1.0 + Float::EPSILON)
-        raise "確率の合計値が1.0を越えている"
+        raise "確率の合計値が1.0を越えている : #{last_rate}"
       end
-      if group0.size > 0 && (last_rate - 1.0).abs > Float::EPSILON
+      if false_group.size > 0 && (last_rate - 1.0).abs > Float::EPSILON
         raise "はずれ要素があるのにもかかわらず最後が 1.0 になっていない : #{last_rate}"
       end
       # はずれ要素がない場合のみ 1.0 に届かないため補完する
       if last_rate <= (1.0 - Float::EPSILON)
-        table << {:range => last_rate...1.0, :rate => 1.0 - last_rate, :robj => nil}
+        table << {range: last_rate...1.0, rate: 1.0 - last_rate, robj: nil}
       end
       table
     end
 
-    def assert_robj_exist
+    def assert_object_exist
       @box.each do |e|
         unless e.has_key?(:robj)
           raise ArgumentError, "nil を返す場合であったとしても robj は必ず指定してください : #{e.inspect} #{@box.inspect}"
