@@ -3,7 +3,7 @@ $LOAD_PATH.unshift "../lib"
 require "lottery_box"
 require "pp"
 
-100000.times do |i|
+100.times do |i|
   box = []
   n = 50
   rand(1..n).times {

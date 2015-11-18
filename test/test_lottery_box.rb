@@ -90,6 +90,27 @@ class TestLotteryBox < Test::Unit::TestCase
     assert_equal :b, pick([{robj: :a}, {robj: :b}], strategy: LotteryBox::OnlyStrategy.new(1))
   end
 
+  test "いろんなパターンでテスト" do
+    100.times do
+      begin
+        box = []
+        n = 100
+        rand(1..n).times {
+          hash = {:robj => nil}
+          if rand(2).zero?
+            hash[:rate] = rand(0.0 .. (1.0 / n))
+          end
+          box << hash
+        }
+        LotteryBox::Base.new(box).pick
+      rescue => e
+        p e
+        p box
+        break
+      end
+    end
+  end
+
   private
 
   def pick(box, options = {})
