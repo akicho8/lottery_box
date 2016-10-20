@@ -9,7 +9,7 @@ box = [
   {:robj => "R", :rate => 0.2},
   {:robj => "N"},
 ]
-LotteryBox.pick(box)            # => "N"
+LotteryBox.pick(box)            # => "R"
 puts LotteryBox.summary(box)    # => nil
 # >> +---------+------+
 # >> | 確率(%) | robj |

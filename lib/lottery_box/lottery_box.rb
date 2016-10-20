@@ -20,6 +20,7 @@ require "active_support/core_ext/class/attribute_accessors"
 require "active_support/core_ext/hash/keys"
 require "active_support/configurable"
 require "bigdecimal"
+require "rain_table"
 
 module LotteryBox
   include ActiveSupport::Configurable
@@ -29,11 +30,8 @@ module LotteryBox
     Base.new(*args).pick
   end
 
-  def self.summary(box)
-    require "rain_table"
-    Base.new(box).table.collect { |e|
-      {"確率(%)" => "%.2f" % e.parcentage, "robj" => e.robj}
-    }.to_t
+  def self.summary(*args)
+    Base.new(*args).table.summary
   end
 
   class Element
@@ -55,6 +53,14 @@ module LotteryBox
 
     def parcentage
       rate * 100.0
+    end
+  end
+
+  class Group < Array
+    def summary
+      collect { |e|
+        {"確率(%)" => "%.2f" % e.parcentage, "robj" => e.robj}
+      }.to_t
     end
   end
 
@@ -93,7 +99,7 @@ module LotteryBox
         other_rate = (1.0r - total.to_r) / false_group.size.to_r
       end
       last_rate = 0.0r
-      table = []
+      table = Group.new
       (true_group + false_group).each do |e|
         rate = (e[:rate] || other_rate).to_r
         range = last_rate ... (last_rate + rate)
