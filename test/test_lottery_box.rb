@@ -39,8 +39,8 @@ class TestLotteryBox < Test::Unit::TestCase
   end
 
   test "確率の合計が 0..1.0 の範囲外" do
-    assert_raises(ArgumentError) { LotteryBox::Base.new([{rate: 1.1}]) }
-    assert_raises(ArgumentError) { LotteryBox::Base.new([{rate: -0.1}]) }
+    assert_raises(ArgumentError) { LotteryBox::Base.new([{rate: 1.1}]).table }
+    assert_raises(ArgumentError) { LotteryBox::Base.new([{rate: -0.1}]).table }
   end
 
   sub_test_case LotteryBox::RateStrategy do
@@ -118,10 +118,10 @@ class TestLotteryBox < Test::Unit::TestCase
   end
 
   def assert_table(expected, table)
-    assert_equal normalize(expected), normalize(table)
+    assert_equal normalize(expected), normalize(table.collect(&:to_h))
   end
 
   def normalize(table)
-    table.collect {|e| e.merge(rate: e[:rate].to_f, range: (e[:range].begin.to_f...e[:range].end.to_f)) }
+    table.collect {|e| e.merge(rate: e[:rate].to_f, range: (e[:range].begin.to_f...e[:range].end.to_f)) } # to_f を呼びたかっただけ
   end
 end

@@ -29,23 +29,58 @@ module LotteryBox
     Base.new(*args).pick
   end
 
+  def self.summary(box)
+    require "rain_table"
+    Base.new(box).table.collect { |e|
+      {"確率(%)" => "%.2f" % e.parcentage, "robj" => e.robj}
+    }.to_t
+  end
+
+  class Element
+    attr_accessor :range, :rate, :robj
+
+    def initialize(range:, rate:, robj:)
+      @range = range
+      @rate = rate
+      @robj = robj
+    end
+
+    def to_h
+      {:range => range, :rate => rate, :robj => robj}
+    end
+
+    def summary
+      "%7.2f %%  %s" % [parcentage, robj]
+    end
+
+    def parcentage
+      rate * 100.0
+    end
+  end
+
   class Base
-    attr_accessor :box, :table
+    attr_reader :box
 
     def initialize(box, strategy: nil)
       @box = box
       @strategy = strategy || LotteryBox.config.default_strategy.call
-      @table = table_build
+      table # new した時点で不整合チェックが走る前の仕様に合わせるため読んでいる
     end
 
     def pick
-      return if @table.empty?
-      if e = @strategy.element_pick(@table)
-        e[:robj]
+      return if table.empty?
+      if e = @strategy.element_pick(table)
+        e.robj
       end
     end
 
-    def table_build
+    def table
+      @table ||= __table
+    end
+
+    private
+
+    def __table
       @box.each { |e| e.assert_valid_keys(:rate, :robj) }
       assert_object_exist
       group = @box.group_by { |e| !!e[:rate] }
@@ -62,7 +97,7 @@ module LotteryBox
       (true_group + false_group).each do |e|
         rate = (e[:rate] || other_rate).to_r
         range = last_rate ... (last_rate + rate)
-        table << {range: range, rate: rate, robj: e[:robj]}
+        table << Element.new(range: range, rate: rate, robj: e[:robj])
         last_rate += rate
       end
       # BigDecimal で計算して最後に to_f で戻せば 0.9999999999999999999999999999 や 1.000000000000000000000001 が 1.0 になる
@@ -74,7 +109,7 @@ module LotteryBox
       end
       # はずれ要素がない場合のみ 1.0 に届かないため補完する
       if last_rate <= (1.0 - Float::EPSILON)
-        table << {range: last_rate...1.0, rate: 1.0r - last_rate, robj: nil}
+        table << Element.new(range: last_rate...1.0, rate: 1.0r - last_rate, robj: nil)
       end
       table
     end
@@ -88,7 +123,7 @@ module LotteryBox
     end
 
     def assert_total(total)
-      unless (0..1.0).include?(total)
+      unless (0..1.0).cover?(total)
         raise ArgumentError, "確率の合計が 0..1.0 の範囲外になっています : #{total} #{@box.inspect}"
       end
     end
@@ -106,7 +141,7 @@ module LotteryBox
       else
         r = @randy
       end
-      table.find{|e|e[:range].include?(r)}
+      table.find { |e| e.range.cover?(r) }
     end
   end
 
