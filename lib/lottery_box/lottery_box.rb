@@ -81,6 +81,9 @@ module LotteryBox
     private
 
     def __table
+      if @box.empty?
+        raise ArgumentError, "引数が空です"
+      end
       @box.each { |e| e.assert_valid_keys(:rate, :robj) }
       assert_object_exist
       group = @box.group_by { |e| !!e[:rate] }

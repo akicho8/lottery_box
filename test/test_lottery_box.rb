@@ -4,7 +4,6 @@ require "test_helper"
 class TestLotteryBox < Test::Unit::TestCase
   sub_test_case "補完" do
     test "かならず合計1.0になるように補完する" do
-      assert_table [{range: 0.0...1.0, rate: 1.0, robj: nil}], LotteryBox::Base.new([]).table
       assert_table [{range: 0.0...0.4, rate: 0.4, robj: nil}, {range: 0.4...1.0, rate: 0.6, robj: nil}], LotteryBox::Base.new([robj: nil, rate: 0.4]).table
     end
 
@@ -44,8 +43,8 @@ class TestLotteryBox < Test::Unit::TestCase
   end
 
   sub_test_case LotteryBox::RateStrategy do
-    test "指定がなくてもエラーにならない(ミスを放置するため検討中)" do
-      assert_equal nil, pick([])
+    test "指定がないとエラーにする" do
+      assert_raises(ArgumentError) { pick([]) }
     end
     test "ハズレが指定されてなくてもアタリだけで合計1.0にできればエラーにならない" do
       assert_equal :xxx, pick([{rate: 1.0, robj: :xxx}])
@@ -82,7 +81,6 @@ class TestLotteryBox < Test::Unit::TestCase
   end
 
   test "SampleStrategy" do
-    pick([], strategy: LotteryBox::SampleStrategy.new)
     pick([{robj: :a}, {robj: :b}], strategy: LotteryBox::SampleStrategy.new)
   end
 
