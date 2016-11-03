@@ -120,3 +120,5 @@ g1.each {|e| v += e[:rate].to_r }
 g0.size.times { v += other }
 p v.to_f
 p (v.to_r - 1.0).abs <= Float::EPSILON
+# >> 1.0000000000000002
+# >> true

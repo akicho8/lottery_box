@@ -10,10 +10,10 @@ box = [
 ]
 
 # 普通の使い方
-LotteryBox.pick(box)            # => "A"
+LotteryBox.pick(box)            # => "C"
 
 # 分布数を確認する例
-10000.times.each_with_object(Hash.new(0)){|*, m| m[LotteryBox.pick(box)] += 1 }.sort_by{|k, v|v} # => [["S", 96], ["A", 1012], ["B", 1987], ["C", 6905]]
+10000.times.each_with_object(Hash.new(0)){|*, m| m[LotteryBox.pick(box)] += 1 }.sort_by{|k, v|v} # => [["S", 85], ["A", 1012], ["B", 1978], ["C", 6925]]
 
 # 各レートをパーセンテージに変換する例
 LotteryBox::Base.new(box).table.each do |e|

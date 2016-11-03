@@ -1,6 +1,7 @@
-* LotteryBox
+# -*- coding: utf-8 -*-
+$LOAD_PATH.unshift "../lib"
+require "pp"
 
-#+BEGIN_SRC ruby
 require "lottery_box"
 
 box = [
@@ -23,4 +24,3 @@ puts LotteryBox.summary(box)
 # >> |   28.00 | N2   |
 # >> |   28.00 | N3   |
 # >> +---------+------+
-#+END_SRC

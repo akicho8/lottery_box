@@ -11,8 +11,8 @@ box = [
   {:robj => nil},
 ]
 
-LotteryBox::Base.new(box).table.each do |attrs|
-  p [attrs[:robj], "%.2f %%" % (attrs[:rate] * 100)]
+LotteryBox::Base.new(box).table.each do |e|
+  p [e.robj, "%.2f %%" % (e.rate * 100)]
 end
 
 box = [
@@ -25,8 +25,8 @@ box = [
   {:robj=> :nil},
   {:robj=> :nil},
 ]
-LotteryBox::Base.new(box).table.each do |attrs|
-  p [attrs[:robj], "%.2f %%" % (attrs[:rate] * 100)]
+LotteryBox::Base.new(box).table.each do |e|
+  p [e.robj, "%.2f %%" % (e.rate * 100)]
 end
 # >> [nil, "10.00 %"]
 # >> [nil, "10.00 %"]
