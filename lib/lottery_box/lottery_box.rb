@@ -58,8 +58,10 @@ module LotteryBox
 
   class Group < Array
     def summary
-      collect { |e|
-        {"確率(%)" => "%.2f" % e.parcentage, "robj" => e.robj}
+      sort_by {|e|
+        [-e.parcentage, e.robj.to_s]
+      }.collect { |e|
+        {"確率(%)" => "%.2f" % e.parcentage, "robj" => e.robj.to_s}
       }.to_t
     end
   end

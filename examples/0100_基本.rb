@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 $LOAD_PATH.unshift "../lib"
 require "pp"
 
@@ -12,15 +11,15 @@ box = [
   {:robj => "N2"},
   {:robj => "N3"},
 ]
-LotteryBox.pick(box)            # => "N1"
+LotteryBox.pick(box)            # => "N2"
 puts LotteryBox.summary(box)
 # >> +---------+------+
 # >> | 確率(%) | robj |
 # >> +---------+------+
-# >> |    1.00 | SSR  |
-# >> |    5.00 | SR   |
-# >> |   10.00 | R    |
 # >> |   28.00 | N1   |
 # >> |   28.00 | N2   |
 # >> |   28.00 | N3   |
+# >> |   10.00 | R    |
+# >> |    5.00 | SR   |
+# >> |    1.00 | SSR  |
 # >> +---------+------+
