@@ -20,7 +20,7 @@ require "active_support/core_ext/class/attribute_accessors"
 require "active_support/core_ext/hash/keys"
 require "active_support/configurable"
 require "bigdecimal"
-require "rain_table"
+require "org_tp"
 
 module LotteryBox
   include ActiveSupport::Configurable

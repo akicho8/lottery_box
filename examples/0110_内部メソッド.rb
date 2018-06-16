@@ -20,7 +20,7 @@ LotteryBox::Base.new(box).table.each do |e|
   p e.summary
 end
 
-require "rain_table"
+require "org_tp"
 tt LotteryBox::Base.new(box).table.collect(&:to_h)
 
 puts LotteryBox.summary(box)
